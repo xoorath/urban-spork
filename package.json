@@ -1,0 +1,15 @@
+{
+  "name": "urban-spork",
+  "version": "0.0.1",
+  "main": "Source/JS/index.js",
+  "repository": "https://github.com/xoorath/urban-spork.git",
+  "author": "xoorath <jared@xoorath.com>",
+  "scripts": {
+    "setup":"cd ./node_modules/bgfx/ && \"../bx/tools/bin/windows/genie.exe\" --with-tools --with-examples vs2017"
+  },
+  "dependencies": {
+    "bgfx": "https://github.com/bkaradzic/bgfx.git#f88c44a835a753818bbd90832934df6e2654ead1",
+    "bimg": "https://github.com/bkaradzic/bimg.git#886ba55a25db213719c96116f9eabb188b946571",
+    "bx": "https://github.com/bkaradzic/bx.git#148bdc60fa25cf29ae0704caa842af4bd8a77820"
+  }
+}
