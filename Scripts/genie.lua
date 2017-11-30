@@ -1,8 +1,3 @@
-newoption {
-	trigger = "with-tools",
-	description = "Enable building tools.",
-}
-
 solution "urbanspork"
 	configurations {
 		"Debug",
@@ -25,7 +20,6 @@ solution "urbanspork"
 	language "C++"
 	startproject "Engine"
 
-MODULE_DIR = path.getabsolute("./../node_modules")
 BGFX_DIR   = path.getabsolute("./../node_modules/bgfx")
 
 URBAN_SPORK_DIR = path.getabsolute("./..");
@@ -65,21 +59,6 @@ end
 function copyLib()
 end
 
-if _OPTIONS["with-sdl"] then
-	if os.is("windows") then
-		if not os.getenv("SDL2_DIR") then
-			print("Set SDL2_DIR enviroment variable.")
-		end
-	end
-end
-
-if _OPTIONS["with-profiler"] then
-	defines {
-		"ENTRY_CONFIG_PROFILER=1",
-		"BGFX_CONFIG_PROFILER=1",
-	}
-end
-
 function projectDefaults()
 
 	debugdir (path.join(BGFX_DIR, "examples/runtime"))
@@ -104,51 +83,6 @@ function projectDefaults()
 		"bimg",
 		"bx",
 	}
-
-	if _OPTIONS["with-sdl"] then
-		defines { "ENTRY_CONFIG_USE_SDL=1" }
-		links   { "SDL2" }
-
-		configuration { "osx" }
-			libdirs { "$(SDL2_DIR)/lib" }
-
-		configuration {}
-	end
-
-	if _OPTIONS["with-glfw"] then
-		defines { "ENTRY_CONFIG_USE_GLFW=1" }
-		links   { "glfw3" }
-
-		configuration { "linux or freebsd" }
-			links {
-				"Xrandr",
-				"Xinerama",
-				"Xi",
-				"Xxf86vm",
-				"Xcursor",
-			}
-
-		configuration { "osx" }
-			linkoptions {
-				"-framework CoreVideo",
-				"-framework IOKit",
-			}
-
-		configuration {}
-	end
-
-	if _OPTIONS["with-ovr"] then
-		configuration { "x32" }
-			libdirs { path.join("$(OVR_DIR)/LibOVR/Lib/Windows/Win32/Release", _ACTION) }
-
-		configuration { "x64" }
-			libdirs { path.join("$(OVR_DIR)/LibOVR/Lib/Windows/x64/Release", _ACTION) }
-
-		configuration { "x32 or x64" }
-			links { "libovr" }
-
-		configuration {}
-	end
 
 	configuration { "vs*", "x32 or x64" }
 		linkoptions {
@@ -352,9 +286,8 @@ dofile(path.join(BX_DIR,   "scripts/bx.lua"))
 dofile(path.join(BIMG_DIR, "scripts/bimg.lua"))
 dofile(path.join(BIMG_DIR, "scripts/bimg_decode.lua"))
 
-if _OPTIONS["with-tools"] then
-	dofile(path.join(BIMG_DIR, "scripts/bimg_encode.lua"))
-end
+dofile(path.join(BIMG_DIR, "scripts/bimg_encode.lua"))
+
 
 
 group "examples"
@@ -363,15 +296,8 @@ dofile(path.join(BGFX_DIR, "scripts/example-common.lua"))
 group "examples"
 exampleProject("Engine")
 
-if _OPTIONS["with-shared-lib"] then
-	group "libs"
-	bgfxProject("-shared-lib", "SharedLib", {})
-end
-
-if _OPTIONS["with-tools"] then
-	group "tools"
-	dofile(path.join(BGFX_DIR, "scripts/shaderc.lua"))
-	dofile(path.join(BGFX_DIR, "scripts/texturec.lua"))
-	dofile(path.join(BGFX_DIR, "scripts/texturev.lua"))
-	dofile(path.join(BGFX_DIR, "scripts/geometryc.lua"))
-end
+group "tools"
+dofile(path.join(BGFX_DIR, "scripts/shaderc.lua"))
+dofile(path.join(BGFX_DIR, "scripts/texturec.lua"))
+dofile(path.join(BGFX_DIR, "scripts/texturev.lua"))
+dofile(path.join(BGFX_DIR, "scripts/geometryc.lua"))
