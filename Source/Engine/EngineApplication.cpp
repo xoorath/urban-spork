@@ -1,8 +1,3 @@
-/*
- * Copyright 2011-2017 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
- */
-
 #include "common.h"
 #include "bgfx_utils.h"
 #include "imgui/imgui.h"
@@ -82,10 +77,10 @@ static const uint16_t s_cubeIndices[36] =
 	21, 23, 22,
 };
 
-class ExampleBump : public entry::AppI
+class EngineApplication : public entry::AppI
 {
 public:
-	ExampleBump(const char* _name, const char* _description)
+	EngineApplication(const char* _name, const char* _description)
 		: entry::AppI(_name, _description)
 	{
 	}
@@ -379,4 +374,4 @@ public:
 
 } // namespace
 
-ENTRY_IMPLEMENT_MAIN(ExampleBump, "06-bump", "Loading textures.");
+ENTRY_IMPLEMENT_MAIN(EngineApplication, "Engine", "Engine project");
