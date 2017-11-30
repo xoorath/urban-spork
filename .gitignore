@@ -34,3 +34,6 @@
 #nodejs
 node_modules/
 yarn.lock
+
+#project specific files we don't commit
+.build/

@@ -5,7 +5,7 @@
   "repository": "https://github.com/xoorath/urban-spork.git",
   "author": "xoorath <jared@xoorath.com>",
   "scripts": {
-    "setup":"cd ./node_modules/bgfx/ && \"../bx/tools/bin/windows/genie.exe\" --with-tools --with-examples vs2017"
+    "setup":"\"./node_modules/bx/tools/bin/windows/genie.exe\" --with-tools vs2017"
   },
   "dependencies": {
     "bgfx": "https://github.com/bkaradzic/bgfx.git#f88c44a835a753818bbd90832934df6e2654ead1",
