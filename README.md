@@ -11,11 +11,11 @@ Start:
 - open `.build/projects/vs2017/urbanspork.sln` in visual studio.
 
 
-#LICENCES:
+## LICENCES:
 
-This engine is being built with the following **exceptional** technologies :+1: :
+This engine is being built with the following **exceptional** technologies :+1:
 
-[BGFX](https://github.com/bkaradzic/bgfx)
+### [BGFX](https://github.com/bkaradzic/bgfx)
 
 BGFX is a cross-platform, graphics API agnostic, "Bring Your Own Engine/Framework" style rendering library written by Бранимир Караџић (@bkardzic).
 
@@ -48,7 +48,7 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 [BGFX LICENCE END ]
 ```
 
-[BX](https://github.com/bkaradzic/bx)
+### [BX](https://github.com/bkaradzic/bx)
 
 BX is a base library written by Бранимир Караџић (@bkardzic)
 
@@ -83,7 +83,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 [BX LICENCE END]
 ```
 
-[BIMG](https://github.com/bkaradzic/bimg)
+### [BIMG](https://github.com/bkaradzic/bimg)
 
 Bimg is an image library written by Бранимир Караџић (@bkardzic)
 
