@@ -2,80 +2,11 @@
 #include "bgfx_utils.h"
 #include "imgui/imgui.h"
 
+#include "include/cef_sandbox_win.h"
+#include "tests/cefsimple/simple_app.h"
+
 namespace
 {
-
-struct PosNormalTangentTexcoordVertex
-{
-    float m_x;
-    float m_y;
-    float m_z;
-    uint32_t m_normal;
-    uint32_t m_tangent;
-    int16_t m_u;
-    int16_t m_v;
-
-    static void init()
-    {
-        ms_decl
-            .begin()
-            .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
-            .add(bgfx::Attrib::Normal, 4, bgfx::AttribType::Uint8, true, true)
-            .add(bgfx::Attrib::Tangent, 4, bgfx::AttribType::Uint8, true, true)
-            .add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Int16, true, true)
-            .end();
-    }
-
-    static bgfx::VertexDecl ms_decl;
-};
-
-bgfx::VertexDecl PosNormalTangentTexcoordVertex::ms_decl;
-
-static PosNormalTangentTexcoordVertex s_cubeVertices[24] =
-{
-    {-1.0f,  1.0f,  1.0f, encodeNormalRgba8(0.0f,  0.0f,  1.0f), 0,      0,      0 },
-    { 1.0f,  1.0f,  1.0f, encodeNormalRgba8(0.0f,  0.0f,  1.0f), 0, 0x7fff,      0 },
-    {-1.0f, -1.0f,  1.0f, encodeNormalRgba8(0.0f,  0.0f,  1.0f), 0,      0, 0x7fff },
-    { 1.0f, -1.0f,  1.0f, encodeNormalRgba8(0.0f,  0.0f,  1.0f), 0, 0x7fff, 0x7fff },
-    {-1.0f,  1.0f, -1.0f, encodeNormalRgba8(0.0f,  0.0f, -1.0f), 0,      0,      0 },
-    { 1.0f,  1.0f, -1.0f, encodeNormalRgba8(0.0f,  0.0f, -1.0f), 0, 0x7fff,      0 },
-    {-1.0f, -1.0f, -1.0f, encodeNormalRgba8(0.0f,  0.0f, -1.0f), 0,      0, 0x7fff },
-    { 1.0f, -1.0f, -1.0f, encodeNormalRgba8(0.0f,  0.0f, -1.0f), 0, 0x7fff, 0x7fff },
-    {-1.0f,  1.0f,  1.0f, encodeNormalRgba8(0.0f,  1.0f,  0.0f), 0,      0,      0 },
-    { 1.0f,  1.0f,  1.0f, encodeNormalRgba8(0.0f,  1.0f,  0.0f), 0, 0x7fff,      0 },
-    {-1.0f,  1.0f, -1.0f, encodeNormalRgba8(0.0f,  1.0f,  0.0f), 0,      0, 0x7fff },
-    { 1.0f,  1.0f, -1.0f, encodeNormalRgba8(0.0f,  1.0f,  0.0f), 0, 0x7fff, 0x7fff },
-    {-1.0f, -1.0f,  1.0f, encodeNormalRgba8(0.0f, -1.0f,  0.0f), 0,      0,      0 },
-    { 1.0f, -1.0f,  1.0f, encodeNormalRgba8(0.0f, -1.0f,  0.0f), 0, 0x7fff,      0 },
-    {-1.0f, -1.0f, -1.0f, encodeNormalRgba8(0.0f, -1.0f,  0.0f), 0,      0, 0x7fff },
-    { 1.0f, -1.0f, -1.0f, encodeNormalRgba8(0.0f, -1.0f,  0.0f), 0, 0x7fff, 0x7fff },
-    { 1.0f, -1.0f,  1.0f, encodeNormalRgba8(1.0f,  0.0f,  0.0f), 0,      0,      0 },
-    { 1.0f,  1.0f,  1.0f, encodeNormalRgba8(1.0f,  0.0f,  0.0f), 0, 0x7fff,      0 },
-    { 1.0f, -1.0f, -1.0f, encodeNormalRgba8(1.0f,  0.0f,  0.0f), 0,      0, 0x7fff },
-    { 1.0f,  1.0f, -1.0f, encodeNormalRgba8(1.0f,  0.0f,  0.0f), 0, 0x7fff, 0x7fff },
-    {-1.0f, -1.0f,  1.0f, encodeNormalRgba8(-1.0f,  0.0f,  0.0f), 0,      0,      0 },
-    {-1.0f,  1.0f,  1.0f, encodeNormalRgba8(-1.0f,  0.0f,  0.0f), 0, 0x7fff,      0 },
-    {-1.0f, -1.0f, -1.0f, encodeNormalRgba8(-1.0f,  0.0f,  0.0f), 0,      0, 0x7fff },
-    {-1.0f,  1.0f, -1.0f, encodeNormalRgba8(-1.0f,  0.0f,  0.0f), 0, 0x7fff, 0x7fff },
-};
-
-static const uint16_t s_cubeIndices[36] =
-{
-     0,  2,  1,
-     1,  2,  3,
-     4,  5,  6,
-     5,  7,  6,
-
-     8, 10,  9,
-     9, 10, 11,
-    12, 13, 14,
-    13, 15, 14,
-
-    16, 18, 17,
-    17, 18, 19,
-    20, 21, 22,
-    21, 23, 22,
-};
 
 class EngineApplication : public entry::AppI
 {
@@ -91,11 +22,12 @@ public:
 
         m_width = _width;
         m_height = _height;
+
         m_debug = BGFX_DEBUG_NONE;
         m_reset = BGFX_RESET_VSYNC;
 
         bgfx::init(args.m_type, args.m_pciId);
-        bgfx::reset(m_width, m_height, m_reset);
+        bgfx::reset(m_width/2, m_height/2, m_reset);
 
         // Enable debug text.
         bgfx::setDebug(m_debug);
@@ -113,60 +45,20 @@ public:
         m_instancingSupported = 0 != (caps->supported & BGFX_CAPS_INSTANCING);
 
         // Create vertex stream declaration.
-        PosNormalTangentTexcoordVertex::init();
-
-        calcTangents(s_cubeVertices
-            , BX_COUNTOF(s_cubeVertices)
-            , PosNormalTangentTexcoordVertex::ms_decl
-            , s_cubeIndices
-            , BX_COUNTOF(s_cubeIndices)
-        );
-
-        // Create static vertex buffer.
-        m_vbh = bgfx::createVertexBuffer(
-            bgfx::makeRef(s_cubeVertices, sizeof(s_cubeVertices))
-            , PosNormalTangentTexcoordVertex::ms_decl
-        );
-
-        // Create static index buffer.
-        m_ibh = bgfx::createIndexBuffer(bgfx::makeRef(s_cubeIndices, sizeof(s_cubeIndices)));
-
-        // Create texture sampler uniforms.
-        s_texColor = bgfx::createUniform("s_texColor", bgfx::UniformType::Int1);
-        s_texNormal = bgfx::createUniform("s_texNormal", bgfx::UniformType::Int1);
-
-        m_numLights = 4;
-        u_lightPosRadius = bgfx::createUniform("u_lightPosRadius", bgfx::UniformType::Vec4, m_numLights);
-        u_lightRgbInnerR = bgfx::createUniform("u_lightRgbInnerR", bgfx::UniformType::Vec4, m_numLights);
-
-        // Create program from shaders.
-        m_program = loadProgram(m_instancingSupported ? "vs_bump_instanced" : "vs_bump", "fs_bump");
-
-        // Load diffuse texture.
-        m_textureColor = loadTexture("textures/fieldstone-rgba.dds");
-
-        // Load normal texture.
-        m_textureNormal = loadTexture("textures/fieldstone-n.dds");
 
         m_timeOffset = bx::getHPCounter();
 
         imguiCreate();
+
+        //CefMainArgs main_args(0);
+        //CefSettings settings;
+
+        //CefInitialize(main_args, settings, nullptr, nullptr);
     }
 
     virtual int shutdown() override
     {
         imguiDestroy();
-
-        // Cleanup.
-        bgfx::destroy(m_ibh);
-        bgfx::destroy(m_vbh);
-        bgfx::destroy(m_program);
-        bgfx::destroy(m_textureColor);
-        bgfx::destroy(m_textureNormal);
-        bgfx::destroy(s_texColor);
-        bgfx::destroy(s_texNormal);
-        bgfx::destroy(u_lightPosRadius);
-        bgfx::destroy(u_lightRgbInnerR);
 
         // Shutdown bgfx.
         bgfx::shutdown();
@@ -231,26 +123,6 @@ public:
                 bgfx::setViewRect(0, 0, 0, uint16_t(m_width), uint16_t(m_height));
             }
 
-            float lightPosRadius[4][4];
-            for (uint32_t ii = 0; ii < m_numLights; ++ii)
-            {
-                lightPosRadius[ii][0] = bx::fsin((time*(0.1f + ii*0.17f) + ii*bx::kPiHalf*1.37f))*3.0f;
-                lightPosRadius[ii][1] = bx::fcos((time*(0.2f + ii*0.29f) + ii*bx::kPiHalf*1.49f))*3.0f;
-                lightPosRadius[ii][2] = -2.5f;
-                lightPosRadius[ii][3] = 3.0f;
-            }
-
-            bgfx::setUniform(u_lightPosRadius, lightPosRadius, m_numLights);
-
-            float lightRgbInnerR[4][4] =
-            {
-                { 1.0f, 0.7f, 0.2f, 0.8f },
-                { 0.7f, 0.2f, 1.0f, 0.8f },
-                { 0.2f, 1.0f, 0.7f, 0.8f },
-                { 1.0f, 0.4f, 0.2f, 0.8f },
-            };
-
-            bgfx::setUniform(u_lightRgbInnerR, lightRgbInnerR, m_numLights);
 
             const uint16_t instanceStride = 64;
             const uint16_t numInstances = 3;
@@ -282,12 +154,8 @@ public:
                         bgfx::setInstanceDataBuffer(&idb, numInstances);
 
                         // Set vertex and index buffer.
-                        bgfx::setVertexBuffer(0, m_vbh);
-                        bgfx::setIndexBuffer(m_ibh);
 
                         // Bind textures.
-                        bgfx::setTexture(0, s_texColor, m_textureColor);
-                        bgfx::setTexture(1, s_texNormal, m_textureNormal);
 
                         // Set render states.
                         bgfx::setState(0
@@ -299,7 +167,7 @@ public:
                         );
 
                         // Submit primitive for rendering to view 0.
-                        bgfx::submit(0, m_program);
+                        //bgfx::submit(0, m_program);
                     }
                 }
             }
@@ -319,12 +187,8 @@ public:
                         bgfx::setTransform(mtx);
 
                         // Set vertex and index buffer.
-                        bgfx::setVertexBuffer(0, m_vbh);
-                        bgfx::setIndexBuffer(m_ibh);
 
                         // Bind textures.
-                        bgfx::setTexture(0, s_texColor, m_textureColor);
-                        bgfx::setTexture(1, s_texNormal, m_textureNormal);
 
                         // Set render states.
                         bgfx::setState(0
@@ -336,7 +200,7 @@ public:
                         );
 
                         // Submit primitive for rendering to view 0.
-                        bgfx::submit(0, m_program);
+                        //bgfx::submit(0, m_program);
                     }
                 }
             }
@@ -353,16 +217,6 @@ public:
 
     entry::MouseState m_mouseState;
 
-    bgfx::VertexBufferHandle m_vbh;
-    bgfx::IndexBufferHandle  m_ibh;
-    bgfx::UniformHandle s_texColor;
-    bgfx::UniformHandle s_texNormal;
-    bgfx::UniformHandle u_lightPosRadius;
-    bgfx::UniformHandle u_lightRgbInnerR;
-    bgfx::ProgramHandle m_program;
-    bgfx::TextureHandle m_textureColor;
-    bgfx::TextureHandle m_textureNormal;
-    uint16_t m_numLights;
     bool m_instancingSupported;
 
     uint32_t m_width;

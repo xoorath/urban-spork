@@ -34,6 +34,9 @@
 #nodejs
 node_modules/
 yarn.lock
+yarn-error.log
 
 #project specific files we don't commit
 .build/
+third_party/cef/cef_binary_windows64/
+third_party/cef/depot_tools/

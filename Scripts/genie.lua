@@ -23,16 +23,11 @@ solution "urbanspork"
 BGFX_DIR   = path.getabsolute("./../node_modules/bgfx")
 
 URBAN_SPORK_DIR = path.getabsolute("./..");
+BX_DIR = path.getabsolute(path.join(BGFX_DIR, "../bx"))
+BIMG_DIR = path.getabsolute(path.join(BGFX_DIR, "../bimg"))
 
-BX_DIR     = os.getenv("BX_DIR")
-if not BX_DIR then
-	BX_DIR = path.getabsolute(path.join(BGFX_DIR, "../bx"))
-end
-
-BIMG_DIR   = os.getenv("BIMG_DIR")
-if not BIMG_DIR then
-	BIMG_DIR = path.getabsolute(path.join(BGFX_DIR, "../bimg"))
-end
+CEF_ROOT = path.getabsolute(path.join(URBAN_SPORK_DIR, "third_party/cef"))
+CEF_DIST = path.getabsolute(path.join(CEF_ROOT, "cef_binary_windows64"))
 
 local URBANSPORK_BUILD_DIR = path.join(URBAN_SPORK_DIR, ".build")
 local URBANSPORK_THIRD_PARTY_DIR = path.join(URBAN_SPORK_DIR, "3rdparty")
@@ -69,10 +64,7 @@ function projectDefaults()
 		path.join(BGFX_DIR, "include"),
 		path.join(BGFX_DIR, "3rdparty"),
 		path.join(BGFX_DIR, "examples/common"),
-	}
-
-	flags {
-		"FatalWarnings",
+		CEF_DIST
 	}
 
 	links {
@@ -81,8 +73,20 @@ function projectDefaults()
 		"bgfx",
 		"bimg_decode",
 		"bimg",
-		"bx",
+		"bx"
 	}
+
+	configuration { "Debug" }
+		links {
+            path.join(CEF_DIST, "Debug/libcef"),
+            path.join(CEF_DIST, "Debug/cef_sandbox")
+		}
+
+	configuration { "Release" }
+		links {
+            path.join(CEF_DIST, "Release/libcef"),
+            path.join(CEF_DIST, "Release/cef_sandbox")
+		}
 
 	configuration { "vs*", "x32 or x64" }
 		linkoptions {
@@ -252,7 +256,7 @@ function projectDefaults()
 	strip()
 end
 
-function exampleProject(...)
+function applicationProject(...)
     for _, name in ipairs({...}) do
         project (name)
             uuid (os.uuid(name))
@@ -277,10 +281,41 @@ function exampleProject(...)
 
 end
 
+function cefProject(...)
+    for _, name in ipairs({...}) do
+        project (name)
+            uuid (os.uuid(name))
+            kind "WindowedApp"
+
+        files {
+            path.join(CEF_DIST, "tests", name, "**.c"),
+            path.join(CEF_DIST, "tests", name, "**.cc"),
+            path.join(CEF_DIST, "tests", name, "**.cpp"),
+            path.join(CEF_DIST, "tests", name, "**.h"),
+            path.join(CEF_DIST, "tests/shared/**.c"),
+            path.join(CEF_DIST, "tests/shared/**.cc"),
+            path.join(CEF_DIST, "tests/shared/**.h"),
+            path.join(CEF_DIST, "include/**.h")
+
+        }
+
+        defines {
+            "UNICODE",
+            "NOMINMAX"
+        }
+
+        projectDefaults()
+    end
+
+end
+
 dofile(path.join(BGFX_DIR, "scripts/bgfx.lua"))
+--dofile(path.join(URBAN_SPORK_DIR, "scripts/cef.lua"))
 
 group "libs"
 bgfxProject("", "StaticLib", {})
+--cefProject("", "StaticLib", {})
+
 
 dofile(path.join(BX_DIR,   "scripts/bx.lua"))
 dofile(path.join(BIMG_DIR, "scripts/bimg.lua"))
@@ -294,7 +329,11 @@ group "examples"
 dofile(path.join(BGFX_DIR, "scripts/example-common.lua"))
 
 group "examples"
-exampleProject("Engine")
+applicationProject("Engine")
+cefProject("cefsimple")
+cefProject("cefclient")
+cefProject("ceftests")
+cefProject("gtest")
 
 group "tools"
 dofile(path.join(BGFX_DIR, "scripts/shaderc.lua"))
