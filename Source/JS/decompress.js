@@ -101,15 +101,6 @@ function MoveDirectorySafely(fromDir, toDir) {
             }
         });
     });
-
-    // if(fs.existsSync(`${output}/../DECOMPRESS_TEMP`))
-    // fs.rmdirSync(`${output}/../DECOMPRESS_TEMP`);
-
-    // mv(`${innerPath}`, `${output}/../DECOMPRESS_TEMP`, {mkdirp:true, clobber:true}, console.error);
-    // fs.rmdirSync(`${output}`);
-
-    // if(fs.existsSync(`${output}`))
-    //     mv(`${output}/../DECOMPRESS_TEMP`, `${output}`, {mkdirp:true, clobber:true}, console.error);
 }
 
 DeleteFolder(output);
