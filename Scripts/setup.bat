@@ -20,7 +20,7 @@ IF NOT "%skip_decompress%"=="skip_decompress" (
     echo ^|-     ./Scripts/setup.bat skip_decompress
     echo ^|-   or
     echo ^|-     yarn setup skip_decompress
-    node ./Source/JS/decompress.js ./third_party/cef/depot_tools.zip /third_party/cef/depot_tools
+    node ./Source/JS/decompress.js ./third_party/cef/depot_tools.zip ./third_party/cef/depot_tools
 
 ) ELSE (
     echo [44m[37m^|- skipping decompression ---------------------------------------------------[0m[0m

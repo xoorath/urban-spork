@@ -4,7 +4,6 @@ const extract = require('extract-zip');
 const path = require(`path`);
 const fs = require(`fs`);
 const mv = require(`mv`);
-const sleep = require(`sleep`);
 const colors = require(`colors`);
 
 let input = `third_party/cef/cef_binary_3.3202.1690.gcd6b88f_windows64.tar.bz2`;
@@ -58,12 +57,12 @@ function MoveDirectorySafely(fromDir, toDir) {
     function PerformMove(fromDir, toDir, tempDir, context) {
         log(`Performing directory move: ${context}`);
         mv(fromDir, tempDir, {mkdirp:true, clobber:true}, err => {
-            if(err) return logErr(err);
+            if(err) return logErr(`failed to move into temp dir ${err}`);
             log(`removing: ${fromDir}`);
             DeleteFolder(path.resolve(fromDir));
             DeleteFolder(path.resolve(toDir));
             mv(tempDir, toDir, {mkdirp:true, clobber:true}, err => {
-                if(err) return logErr(err);
+               if(err) return logErr(`failed to move from temp dir: ${err}`);
                 DeleteFolder(tempDir);
             });
         });
@@ -113,14 +112,28 @@ function MoveDirectorySafely(fromDir, toDir) {
     //     mv(`${output}/../DECOMPRESS_TEMP`, `${output}`, {mkdirp:true, clobber:true}, console.error);
 }
 
-//DeleteFolder(output);
-sleep.sleep(2);
+DeleteFolder(output);
 
 log(`${input} ${output}`);
 
 if(input.endsWith('zip')) {
-    //fs.mkdirSync(output);
-    extract(input, { dir: output, debug: true }, logErr);
+
+    if (!fs.existsSync(output)){
+        log(`dir does not exist: ${output}`);
+        fs.mkdirSync(output);
+    }
+    else {
+        log(`dir does exist: ${output}`);
+    }
+   
+    extract(input, { dir: output, debug: true }, err => {
+        if(err) {
+            logErr(`extract zip failed: ${err}`);
+        }
+        else {
+            log(`extract zip succeeded. ${output}`);
+        }
+    });
 } else {
     decompress(input, output).then(files => {
         // annoying folder in folder detection
