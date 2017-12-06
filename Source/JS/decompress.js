@@ -6,18 +6,22 @@ const fs = require(`fs`);
 const mv = require(`mv`);
 const colors = require(`colors`);
 
-let input = `third_party/cef/cef_binary_3.3202.1690.gcd6b88f_windows64.tar.bz2`;
-let output = `third_party/cef/cef_binary_windows64/`
+let input = ``;
+let output = ``
 
-let log = txt => {console.log(`|- ${txt}`.reset);}
-let logErr = err => {console.log(`!- ${err}`.bgRed.white);}
+let log = txt => { return console.log(`|- ${txt}`.reset); }
+let logErr = err => { return console.log(`!- ${err}`.bgRed.white); }
 
 if(process.argv.length >= 3) {
     input = process.argv[2];
+} else {
+    return logErr(`usage: node decompress.js <archive> <output directory>`);
 }
 
 if(process.argv.length >= 4) {
     output = process.argv[3];
+} else {
+    return logErr(`usage: node decompress.js <archive> <output directory>`);
 }
 
 input = path.resolve(input);

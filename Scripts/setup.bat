@@ -1,3 +1,5 @@
+:: Quock color reference: https://gist.github.com/mlocati/fdabcaeb8071d5c75a2d51712db24011#file-win10colors-cmd
+
 @echo off
 :: ensure we can get back to the callers directory when we're done, so we don't strand them.
 set OD=%CD%
@@ -10,41 +12,68 @@ echo [42m[30m=================================================================
 echo [42m[30mSETUP STARTED (wait for completion message, or use ctrl+c to cancel)         [0m[0m
 echo [42m[30m=============================================================================[0m[0m
 
-set skip_decompress=%1
+setlocal enabledelayedexpansion
 
-IF NOT "%skip_decompress%"=="skip_decompress" (
-    echo ^|- decompression can be skipped by adding skip_decompress to the command line
-    echo ^|- this can be useful if you have already decompressed dependancies and simply
-    echo ^|- want to run the rest of the setup process.
-    echo ^|- example:
-    echo ^|-     ./Scripts/setup.bat skip_decompress
-    echo ^|-   or
-    echo ^|-     yarn setup skip_decompress
-    node ./Source/JS/decompress.js ./third_party/cef/depot_tools.zip ./third_party/cef/depot_tools
-    node ./Source/JS/decompress.js third_party/cef/cef_binary_3.3202.1690.gcd6b88f_windows64.tar.bz2 third_party/cef/cef_binary_windows64/
-
-) ELSE (
-    echo [44m[37m^|- skipping decompression ---------------------------------------------------[0m[0m
+set argCount=0
+for %%x in (%*) do (
+   set /A argCount+=1
+   set "argVec[!argCount!]=%%~x"
 )
 
-echo [44m[37m^|- running genie project generation (urban spork)----------------------------[0m[0m
-"./node_modules/bx/tools/bin/windows/genie.exe" vs2017
+:: recognized arguments:
+set skip_decompress=FALSE
+set skip_genie=FALSE
 
-echo [44m[37m^|- running genie project generation (bgfx) ----------------------------------[0m[0m
-cd node_modules/bgfx/
-"../bx/tools/bin/windows/genie.exe" vs2017
-CD %SCRIPT_DIR%
-CD ../
+for /L %%i in (1,1,%argCount%) do (
+    IF "!argVec[%%i]!"=="skip_decompress" (
+        set skip_decompress=TRUE
+    ) ELSE IF "!argVec[%%i]!"=="skip_genie" (
+        set skip_genie=TRUE
+    ) ELSE (
+        echo [41m[37m^|- "!argVec[%%i]!" argument not recognized [0m[0m
+    )
+)
 
-echo [44m[37m^|- building cef wrapper -----------------------------------------------------[0m[0m
-set CEF_USE_GN=1
-set GN_ARGUMENTS=--ide=vs2017 --sln=cef --filters=//cef/*
-python ./third_party/cef/automate/automate-git.py --download-dir=./third_party/cef/cef_git --depot-tools-dir=./third_party/cef/depot_tools --no-distrib --no-build
+IF %skip_decompress%==TRUE (
+    echo [44m[37m^|- skipping decompression ^(skip_decompress argument passed^)                  [0m[0m
+) ELSE (
+REM    node ./Source/JS/decompress.js ./third_party/something/something.zip ./third_party/something/something
+REM    node ./Source/JS/decompress.js ./third_party/other/other.tar.bz2 ./third_party/other/other
+)
 
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: Run GENie
 
+IF %skip_genie%==TRUE (
+    echo [44m[37m^|- skipping genie ^(skip_genie argument passed^)                               [0m[0m
+) ELSE (
+    echo [44m[37m^|- running genie project generation ^(urban spork^)----------------------------[0m[0m
+    "./node_modules/bx/tools/bin/windows/genie.exe" vs2017
+
+    echo [44m[37m^|- running genie project generation ^(bgfx^) ----------------------------------[0m[0m
+    cd node_modules/bgfx/
+    "../bx/tools/bin/windows/genie.exe" vs2017
+    CD %SCRIPT_DIR%
+    CD ../
+)
+goto:label_exit_success
+
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: Exit messages
+
+:label_exit_success
 echo [42m[30m=============================================================================[0m[0m
 echo [42m[30mSETUP COMPLETE (see above for any errors)                                    [0m[0m
 echo [42m[30m=============================================================================[0m[0m
+goto:label_exit
 
+
+:label_exit_error
+echo [41m[37m=============================================================================[0m[0m
+echo [41m[37mSETUP EXITED EARLY (see above for any errors)                                [0m[0m
+echo [41m[37m=============================================================================[0m[0m
+goto:label_exit
+
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: Cleanup
+
+:label_exit
 :: return to the callers directory
 cd %OD%
