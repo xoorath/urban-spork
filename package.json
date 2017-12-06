@@ -13,6 +13,7 @@
     "bx": "https://github.com/bkaradzic/bx.git#148bdc60fa25cf29ae0704caa842af4bd8a77820",
     "colors": "^1.1.2",
     "decompress": "^4.2.0",
+    "electron": "^1.7.9",
     "extract-zip": "^1.6.6",
     "mv": "^2.1.1"
   }

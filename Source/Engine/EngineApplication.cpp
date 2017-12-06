@@ -2,8 +2,6 @@
 #include "bgfx_utils.h"
 #include "imgui/imgui.h"
 
-#include "include/cef_sandbox_win.h"
-#include "tests/cefsimple/simple_app.h"
 
 namespace
 {
@@ -50,10 +48,7 @@ public:
 
         imguiCreate();
 
-        //CefMainArgs main_args(0);
-        //CefSettings settings;
-
-        //CefInitialize(main_args, settings, nullptr, nullptr);
+        
     }
 
     virtual int shutdown() override

@@ -1,13 +1,18 @@
-const process = require(`process`);
+// this file is a standalone tool to decompress files in a way we can control a bit easier than if we were just using another third party tool
+
+// the main use case is to decompress something like "mylib_0.035.tar.bz" into a predictable path such as "mylib/" instead of "mylib/mylib_0.035/"
+// which would require some knowledge of the version number when loading files in mylib to get the right path.
+
+const colors = require(`colors`);
 const decompress = require(`decompress`);
 const extract = require('extract-zip');
-const path = require(`path`);
 const fs = require(`fs`);
 const mv = require(`mv`);
-const colors = require(`colors`);
+const path = require(`path`);
+const process = require(`process`);
 
 let input = ``;
-let output = ``
+let output = ``;
 
 let log = txt => { return console.log(`|- ${txt}`.reset); }
 let logErr = err => { return console.log(`!- ${err}`.bgRed.white); }
