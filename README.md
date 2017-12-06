@@ -7,8 +7,8 @@ Requires:
 - [python](https://www.python.org/downloads/release/python-2714/)
 
 Start:
-- yarn install
-- yarn run setup
+- `yarn install`
+- `yarn run setup` *(Note, this takes a **very** long time, likely over an hour.)*
 - open `.build/projects/vs2017/urbanspork.sln` in visual studio.
 
 # Licence:
