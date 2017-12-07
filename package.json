@@ -15,7 +15,8 @@
     "colors": "^1.1.2",
     "decompress": "^4.2.0",
     "extract-zip": "^1.6.6",
-    "mv": "^2.1.1"
+    "mv": "^2.1.1",
+    "three": "^0.88.0"
   },
   "devDependencies": {
     "electron": "1.7.9"

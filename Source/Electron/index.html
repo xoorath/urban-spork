@@ -3,17 +3,19 @@
   <head>
     <meta charset="UTF-8">
     <title>Hello World!</title>
-  </head>
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+    </head>
   <body>
-    <h1>Hello World!</h1>
-    <!-- All of the Node.js APIs are available in this renderer process. -->
+
+    <div id="container"></div>
     We are using Node.js <script>document.write(process.versions.node)</script>,
     Chromium <script>document.write(process.versions.chrome)</script>,
     and Electron <script>document.write(process.versions.electron)</script>.
 
     <script>
       // You can also require other files to run in this process
-      require('./../JS/renderer/index-renderer.js')
+      window.THREE = require('./../../node_modules/three/build/three.js')
+      require('./renderer/index-renderer.js')
     </script>
   </body>
 </html>
