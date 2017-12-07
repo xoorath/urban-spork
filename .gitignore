@@ -38,5 +38,8 @@ yarn-error.log
 
 #project specific files we don't commit
 .build/
+build/
+bin/
+.vscode/settings.json
 third_party/cef/cef_binary_windows64/
 third_party/cef/depot_tools/

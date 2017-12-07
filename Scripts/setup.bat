@@ -41,6 +41,19 @@ REM    node ./Source/JS/decompress.js ./third_party/something/something.zip ./th
 REM    node ./Source/JS/decompress.js ./third_party/other/other.tar.bz2 ./third_party/other/other
 )
 
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: Build CrossProcessRenderer for nodejs
+
+echo [44m[37m^|- running electron native plugin compilation -------------------------------[0m[0m
+
+:: a workaround for electron-rebuild, see: https://github.com/electron/electron-rebuild/issues/215
+echo {} > ./node_modules/bgfx/package.json
+echo {} > ./node_modules/bx/package.json
+echo {} > ./node_modules/bimg/package.json
+
+call .\node_modules\.bin\electron-rebuild
+CD %SCRIPT_DIR%
+CD ../
+
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: Run GENie
 
 IF %skip_genie%==TRUE (
@@ -55,6 +68,7 @@ IF %skip_genie%==TRUE (
     CD %SCRIPT_DIR%
     CD ../
 )
+
 goto:label_exit_success
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: Exit messages

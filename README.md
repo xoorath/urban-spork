@@ -3,8 +3,10 @@
 Requires:
 - [node.js](https://nodejs.org/en/) 
 - [yarn](https://yarnpkg.com/en/docs/getting-started)
-- [visual studio](https://www.visualstudio.com/downloads/)
+- [visual studio 2017](https://www.visualstudio.com/downloads/)
+- [visual studio 2015](https://www.visualstudio.com/downloads/)
 - [python](https://www.python.org/downloads/release/python-2714/)
+- [node-gyp and windows-build-tools](https://github.com/nodejs/node-gyp)
 
 Start:
 - `yarn install`
