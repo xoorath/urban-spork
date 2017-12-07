@@ -2,9 +2,94 @@
 #include "bgfx_utils.h"
 #include "imgui/imgui.h"
 
+#include <cstdio>
+#include <iostream>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <array>
+
+#include <windows.h>
+#include <stdio.h>
+#include <tchar.h>
+
 
 namespace
 {
+
+STARTUPINFO si;
+PROCESS_INFORMATION pi;
+HANDLE ghJob = 0;
+
+void SimpleStartProcess(LPSTR cmd, LPSTR dir, bool closeWithParent = true)
+{
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = FALSE;
+    si.lpTitle = "urban spork: yarn starter process";
+    ZeroMemory(&pi, sizeof(pi));
+
+    // Start the child process. 
+    if (!CreateProcess(NULL,   // No module name (use command line)
+        cmd,            // Command line
+        NULL,           // Process handle not inheritable
+        NULL,           // Thread handle not inheritable
+        FALSE,          // Set handle inheritance to FALSE
+        0,              // No creation flags
+        NULL,           // Use parent's environment block
+        dir,           // Use parent's starting directory 
+        &si,            // Pointer to STARTUPINFO structure
+        &pi)           // Pointer to PROCESS_INFORMATION structure
+        )
+    {
+        char buffer[4096] = { 0 };
+        sprintf_s(buffer, "CreateProcess failed (%d).\n", GetLastError());
+        printf(buffer);
+        return;
+    }
+
+
+    if (ghJob == 0)
+    {
+        ghJob = CreateJobObject(NULL, NULL);
+        if (ghJob != 0)
+        {
+            JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli = { 0 };
+
+            // Configure all child processes associated with the job to terminate when the
+            jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+            if (SetInformationJobObject(ghJob, JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)) == 0)
+            {
+                // error
+            }
+        }
+    }
+    if (ghJob != 0 && closeWithParent)
+    {
+        AssignProcessToJobObject(ghJob, pi.hProcess);
+    }
+}
+
+void StartEditorProcess()
+{
+    char buffer[1024] = { 0 };
+    sprintf_s(buffer, "%s\\npm\\yarn.cmd start", getenv("APPDATA"));
+    SimpleStartProcess(buffer, "../../../../");
+}
+
+void StopEditorProcess()
+{
+    if (pi.hProcess)
+    {
+        CloseHandle(pi.hProcess);
+    }
+    if (pi.hThread)
+    {
+        CloseHandle(pi.hThread);
+    }
+    
+}
 
 class EngineApplication : public entry::AppI
 {
@@ -47,12 +132,14 @@ public:
         m_timeOffset = bx::getHPCounter();
 
         imguiCreate();
-
         
+        StartEditorProcess();
     }
 
     virtual int shutdown() override
     {
+        StopEditorProcess();
+
         imguiDestroy();
 
         // Shutdown bgfx.

@@ -51,7 +51,7 @@ IF %skip_genie%==TRUE (
 
     echo [44m[37m^|- running genie project generation ^(bgfx^) ----------------------------------[0m[0m
     cd node_modules/bgfx/
-    "../bx/tools/bin/windows/genie.exe" vs2017
+    "../bx/tools/bin/windows/genie.exe" --with-examples vs2017
     CD %SCRIPT_DIR%
     CD ../
 )
