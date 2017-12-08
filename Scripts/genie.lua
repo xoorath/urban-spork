@@ -43,6 +43,7 @@ if not os.isdir(BX_DIR) or not os.isdir(BIMG_DIR) then
 	os.exit()
 end
 
+
 dofile (path.join(BX_DIR, "scripts/toolchain.lua"))
 if not toolchain(URBANSPORK_BUILD_DIR, URBANSPORK_THIRD_PARTY_DIR) then
 	return -- no action specified
@@ -119,6 +120,18 @@ function projectDefaults()
 		}
 		linkoptions {
 			"/ignore:4264" -- LNK4264: archiving object file compiled with /ZW into a static library; note that when authoring Windows Runtime types it is not recommended to link with a static library that contains Windows Runtime metadata
+		}
+
+	configuration { "vs*" }
+		buildoptions {
+			"/wd4005", -- warning C4005: '_CRT_SECURE_NO_WARNINGS': macro redefinition
+			"/wd4100", -- error C4100: 'inclusionDepth' : unreferenced formal parameter
+			"/wd4127", -- warning C4127: conditional expression is constant
+			"/wd4244", -- warning C4244: '=': conversion from 'int' to 'char', possible loss of data
+			"/wd4456", -- warning C4456: declaration of 'feature' hides previous local declaration
+			"/wd4457", -- warning C4457: declaration of 'token' hides function parameter
+			"/wd4458", -- warning C4458: declaration of 'language' hides class member
+			"/wd4702", -- warning C4702: unreachable code
 		}
 
 	-- WinRT targets need their own output directories or build files stomp over each other
@@ -291,3 +304,6 @@ dofile(path.join(BGFX_DIR, "scripts/shaderc.lua"))
 dofile(path.join(BGFX_DIR, "scripts/texturec.lua"))
 dofile(path.join(BGFX_DIR, "scripts/texturev.lua"))
 dofile(path.join(BGFX_DIR, "scripts/geometryc.lua"))
+
+
+group "electron"
