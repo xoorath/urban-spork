@@ -1,3 +1,10 @@
+/**
+ * Note: "renderer" in the context of this file refers to an electron "renderer", what you might
+ * intuitively think of as a browser tab, or simply front end javascript. This does not have a 
+ * direct relationship with the game engine renderer, although it does recieve data coming from 
+ * there through the cross process renderer.
+ */
+
 const THREE = require('./../../../node_modules/three/build/three.js');
 
 var container;
