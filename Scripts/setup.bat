@@ -13,7 +13,16 @@ CALL :function_print_bar_success
 
 REM :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: Check for script dependancies, fail nicely if missing
 
-REM Check that git exists at the path.
+where /q yarn
+IF NOT %ERRORLEVEL%==0 (
+    CALL :function_print_info_red "Error: cannot find yarn at path. See the readme file for project setup"
+    CALL :function_print_info_red "instructions. Once yarn is installed, run 'yarn setup' insetad of"
+    CALL :function_print_info_red "calling setup.bat directly."
+    GOTO:label_exit_error
+) ELSE (
+    CALL :function_print_info_blue "yarn found"
+)
+
 where /q git
 IF NOT %ERRORLEVEL%==0 (
     CALL :function_print_info_red "Error: cannot find git.exe at path. Try installing it from: "
@@ -154,11 +163,12 @@ for /L %%i in (1,1,%argCount%) do (
 REM :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: Decompress any dependancies
 
 IF %skip_decompress%==TRUE (
-    ECHO [44m[37m^|- skipping decompression ^(skip_decompress argument passed^)                  [0m[0m
+    CALL :function_print_info_blue "skipping decompression (skip_decompres used)"
 ) ELSE (
     SETLOCAL
 
-    REM ECHO [44m[37m^|- running decompression                                                      [0m[0m
+    REM CALL :function_print_info_blue "running decompression"
+    REM CALL :function_print_tip "add 'skip_decompress' to the command line to skip"
 
     REM node ./Source/JS/decompress.js ./third_party/something/something.zip ./third_party/something/something
     REM node ./Source/JS/decompress.js ./third_party/other/other.tar.bz2 ./third_party/other/other
@@ -173,11 +183,11 @@ IF %skip_decompress%==TRUE (
 REM :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: Build CrossProcessRenderer for nodejs
 
 IF %skip_electron%==TRUE (
-    ECHO [44m[37m^|- skipping electron ^(skip_electron argument passed^)                         [0m[0m
+    CALL :function_print_info_blue "skipping electron (skip_electron used)"
 ) ELSE (
     SETLOCAL
     CALL :function_print_info_blue "running electron native plugin compilation"
-    CALL :function_print_info_blue "(((this can be skipped by adding 'skip_electron' to the command line)))"
+    CALL :function_print_tip "add 'skip_electron' to the command line to skip"
 
     :: a workaround for electron-rebuild, see: https://github.com/electron/electron-rebuild/issues/215
     ECHO {} > ./node_modules/bgfx/package.json
@@ -190,7 +200,8 @@ IF %skip_electron%==TRUE (
     CALL %ELECTRON_REBUILD% -f -w CrossProcessRenderer --debug
 
     IF NOT %ERRORLEVEL%==0 (
-        ECHO electron compilation failed! Error code: %ERRORLEVEL%
+        ECHO %ELECTRON_REBUILD% returned %ERRORLEVEL%
+        CALL :function_print_info_red "electron compilation failed"
         ENDLOCAL
         GOTO:label_exit_error
     )
@@ -200,62 +211,61 @@ IF %skip_electron%==TRUE (
 )
 
 REM :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: Build 0MQ and its dependancies
-REM instructions from https://github.com/zeromq/czmq, 
+REM basic instructions from https://github.com/zeromq/czmq, 
 REM except we're using yarn (see: package.json) to get dependancies from git.
 
 IF %skip_zmq%==TRUE (
-    CALL :function_print_info_blue "skipping 0mq ^(skip_zmq argument passed^)"
+    CALL :function_print_info_blue "skipping 0mq (skip_zmq used)"
 ) ELSE (
     SETLOCAL
 
     IF %skip_libsodium%==TRUE (
-        CALL :function_print_info_blue "skipping libsodium ^(skip_libsodium argument passed^)"
+        CALL :function_print_info_blue "skipping libsodium (skip_libsodium used)"
     ) ELSE (
-        ECHO [44m[37m^|- running libsodium compilation                                             [0m[0m
+        CALL :function_print_info_blue "running libsodium compilation"
+        CALL :function_print_tip "add 'skip_zmq' or 'skip_libsodium' to the command line to skip"
         CD %LIBSODIUM_BUILD_ROOT%
         CALL buildbase.bat ..\vs2015\libsodium.sln 14
+        ECHO buildbase.bat exited with code %ERRORLEVEL%
         IF NOT %ERRORLEVEL%==0 (
-            ECHO lib sodium compilation failed! Error code: %ERRORLEVEL%
+            CALL :function_print_info_red "libsodium compilation failed"
             ENDLOCAL
             GOTO:label_exit_error
-        ) ELSE (
-            ECHO buildbase.bat exited with code %ERRORLEVEL%
         )
         CD %PROJECT_ROOT%
     )
 
     IF %skip_libzmq%==TRUE (
-        CALL :function_print_info_blue "skipping libzmq ^(skip_libzmq argument passed^)"
+        CALL :function_print_info_blue "skipping libzmq (skip_libzmq used)"
     ) ELSE (
-        ECHO [44m[37m^|- running libzmq compilation                                                [0m[0m
+        CALL :function_print_info_blue "running libzmq compilation"
+        CALL :function_print_tip "add 'skip_zmq' or 'skip_libzmq' to the command line to skip"
         CD %LIBZMQ_BUILD_ROOT%
         CALL buildbase.bat ..\vs2015\libzmq.sln 14
+        ECHO buildbase.bat exited with code %ERRORLEVEL%
         IF NOT %ERRORLEVEL%==0 (
-            ECHO lib zmq compilation failed! Error code: %ERRORLEVEL%
+            CALL :function_print_info_red "libzmq compilation failed"
             ENDLOCAL
             GOTO:label_exit_error
-        ) ELSE (
-            ECHO buildbase.bat exited with code %ERRORLEVEL%
         )
         CD %PROJECT_ROOT%
     )
 
     IF %skip_czmq%==TRUE (
-        CALL :function_print_info_blue "skipping czmq ^(known to fail^)"
+        CALL :function_print_info_blue "skipping czmq (known to fail)"
     ) ELSE (
-        
-        ECHO [44m[37m^|- czmq configuration                                                        [0m[0m
+        CALL :function_print_info_blue "czmq configuration"
+        CALL :function_print_tip "add 'skip_zmq' or 'skip_czmq' to the command line to skip"
         CD %CZMQ_BUILD_ROOT%
         CALL .\configure.bat
         CD vs2015
-        ECHO [44m[37m^|- czmq compilation                                                          [0m[0m
+        CALL :function_print_info_blue "czmq compilation"
         CALL .\build.bat
+        ECHO build.bat exited with code %ERRORLEVEL%
         IF NOT %ERRORLEVEL%==0 (
-            ECHO 0mq compilation failed! Error code: %ERRORLEVEL%
+            CALL :function_print_info_red "czmq compilation failed"
             ENDLOCAL
             GOTO:label_exit_error
-        ) ELSE (
-            ECHO build.bat exited with code %ERRORLEVEL%
         )
         CD %PROJECT_ROOT%
     )
@@ -265,27 +275,30 @@ IF %skip_zmq%==TRUE (
 REM :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: Run GENie
 
 IF %skip_genie%==TRUE (
-    ECHO [44m[37m^|- skipping genie ^(skip_genie argument passed^)                               [0m[0m
+    CALL :function_print_info_blue "skipping GENie (skip_genie used)"
 ) ELSE (
     SETLOCAL
-    ECHO [44m[37m^|- running genie prep ^(environment vars^)                                     [0m[0m
+    CALL :function_print_info_blue "running GENie project generation (urban spork)"
+    CALL :function_print_tip "add 'skip_genie' to the command line to skip"
 
-    REM run GENie
-    ECHO [44m[37m^|- running genie project generation ^(urban spork^)                            [0m[0m
     "./node_modules/bx/tools/bin/windows/genie.exe" vs2017
 
+    ECHO genie.exe returned %ERRORLEVEL%
     IF NOT %ERRORLEVEL%==0 (
-        ECHO urban-spork project generation failed! Error code: %ERRORLEVEL%
+        CALL :function_print_info_red "urban spork project generation failed"
         ENDLOCAL
         GOTO:label_exit_error
     )
 
-    ECHO [44m[37m^|- running genie project generation ^(bgfx^)                                   [0m[0m
+    CALL :function_print_info_blue "running GENie project generation (bgfx)"
+    CALL :function_print_tip "add 'skip_genie' to the command line to skip"
+
     CD node_modules/bgfx/
     "../bx/tools/bin/windows/genie.exe" --with-examples vs2017
 
+    ECHO genie.exe returned %ERRORLEVEL%
     IF NOT %ERRORLEVEL%==0 (
-        ECHO bgfx project generation failed! Error code: %ERRORLEVEL%
+        CALL :function_print_info_red "urban spork project generation failed"
         ENDLOCAL
         GOTO:label_exit_error
     )
@@ -299,16 +312,16 @@ GOTO:label_exit_success
 REM :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: Exit messages
 
 :label_exit_success
-ECHO [42m[30m^|============================================================================[0m[0m
-ECHO [42m[30m^|- SETUP COMPLETE ^(see above for any errors^)                                 [0m[0m
-ECHO [42m[30m^|============================================================================[0m[0m
+CALL :function_print_bar_success
+CALL :function_print_info_green "SETUP COMPLETE (see above for any errors)"
+CALL :function_print_bar_success
 GOTO:label_exit
 
 
 :label_exit_error
-ECHO [41m[37m^|============================================================================[0m[0m
-ECHO [41m[37m^|- SETUP EXITED EARLY ^(see above for any errors^)                             [0m[0m
-ECHO [41m[37m^|============================================================================[0m[0m
+CALL :function_print_bar_error
+CALL :function_print_info_red "SETUP EXITED EARLY (see above for any errors)"
+CALL :function_print_bar_error
 GOTO:label_exit
 
 REM :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: Functions
@@ -330,6 +343,16 @@ SET param_text=%~1
 SET "to_print=%param_text%%spaces%"
 SET "to_print=^|- %to_print:~0,74%"
 ECHO [44m[37m%to_print%[0m[0m
+ENDLOCAL
+EXIT /B 0
+
+:function_print_tip
+SETLOCAL
+SET "spaces=                                                                           "
+SET param_text=%~1
+SET "to_print=%param_text%%spaces%"
+SET "to_print=^|- tip: %to_print:~0,69%"
+ECHO [43m[35m%to_print%[0m[0m
 ENDLOCAL
 EXIT /B 0
 
@@ -360,3 +383,4 @@ REM ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :label_exit
 REM return to the callers directory
 cd %OD%
+EXIT %ERRORLEVEL%
