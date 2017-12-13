@@ -66,8 +66,8 @@ CALL :function_print_info_blue "found windows sdk version is: %WindowsSDKVersion
 REM Check that electron-rebuild exists.
 SET ELECTRON_REBUILD="./node_modules/.bin/electron-rebuild"
 IF NOT EXIST %ELECTRON_REBUILD% (
-    ECHO ERROR: cannot find %ELECTRON_REBUILD%
-    ECHO did you run "yarn install" before "yarn setup"?
+    CALL :function_print_info_red "ERROR: cannot find %ELECTRON_REBUILD%"
+    CALL :function_print_info_red "did you run 'yarn install' before 'yarn setup'?"
     GOTO:label_exit_error
 ) ELSE (
     CALL :function_print_info_blue "electron-rebuild found"
@@ -77,11 +77,38 @@ IF NOT EXIST %ELECTRON_REBUILD% (
 REM Check that GENie exists
 SET GENIE_EXE="./node_modules/bx/tools/bin/windows/genie.exe"
 IF NOT EXIST %GENIE_EXE% (
-    ECHO Error: cannot find %GENIE_EXE%
-    ECHO did you run "yarn install" before "yarn setup"?
+    CALL :function_print_info_red "Error: cannot find %GENIE_EXE%"
+    CALL :function_print_info_red "did you run 'yarn install' before 'yarn setup'?"
     GOTO:label_exit_error
 ) ELSE (
     CALL :function_print_info_blue "GENie found"
+)
+
+SET LIBSODIUM_BUILD_ROOT=".\node_modules\libsodium\builds\msvc\build"
+IF NOT EXIST %LIBSODIUM_BUILD_ROOT% (
+    CALL :function_print_info_red "Error: cannot find %LIBSODIUM_BUILD_ROOT%"
+    CALL :function_print_info_red "did you run 'yarn install' before 'yarn setup'?"
+    GOTO:label_exit_error
+) ELSE (
+    CALL :function_print_info_blue "libsodium build root found"
+)
+
+SET LIBZMQ_BUILD_ROOT=".\node_modules\libzmq\builds\msvc\build\"
+IF NOT EXIST %LIBZMQ_BUILD_ROOT% (
+    CALL :function_print_info_red "Error: cannot find %LIBZMQ_BUILD_ROOT%"
+    CALL :function_print_info_red "did you run 'yarn install' before 'yarn setup'?"
+    GOTO:label_exit_error
+) ELSE (
+    CALL :function_print_info_blue "libzmq build root found"
+)
+
+SET CZMQ_BUILD_ROOT=".\node_modules\czmq\builds\msvc"
+IF NOT EXIST %CZMQ_BUILD_ROOT% (
+    CALL :function_print_info_red "Error: cannot find %CZMQ_BUILD_ROOT%"
+    CALL :function_print_info_red "did you run 'yarn install' before 'yarn setup'?"
+    GOTO:label_exit_error
+) ELSE (
+    CALL :function_print_info_blue "czmq build root found"
 )
 
 REM :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: Package arguments into checkable flags
@@ -185,7 +212,7 @@ IF %skip_zmq%==TRUE (
         CALL :function_print_info_blue "skipping libsodium ^(skip_libsodium argument passed^)"
     ) ELSE (
         ECHO [44m[37m^|- running libsodium compilation                                             [0m[0m
-        CD .\node_modules\libsodium\builds\msvc\build
+        CD %LIBSODIUM_BUILD_ROOT%
         CALL buildbase.bat ..\vs2015\libsodium.sln 14
         IF NOT %ERRORLEVEL%==0 (
             ECHO lib sodium compilation failed! Error code: %ERRORLEVEL%
@@ -201,7 +228,7 @@ IF %skip_zmq%==TRUE (
         CALL :function_print_info_blue "skipping libzmq ^(skip_libzmq argument passed^)"
     ) ELSE (
         ECHO [44m[37m^|- running libzmq compilation                                                [0m[0m
-        CD .\node_modules\libzmq\builds\msvc\build\
+        CD %LIBZMQ_BUILD_ROOT%
         CALL buildbase.bat ..\vs2015\libzmq.sln 14
         IF NOT %ERRORLEVEL%==0 (
             ECHO lib zmq compilation failed! Error code: %ERRORLEVEL%
@@ -218,7 +245,7 @@ IF %skip_zmq%==TRUE (
     ) ELSE (
         
         ECHO [44m[37m^|- czmq configuration                                                        [0m[0m
-        CD .\node_modules\czmq\builds\msvc
+        CD %CZMQ_BUILD_ROOT%
         CALL .\configure.bat
         CD vs2015
         ECHO [44m[37m^|- czmq compilation                                                          [0m[0m
