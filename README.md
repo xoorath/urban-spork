@@ -10,7 +10,7 @@ Requires:
 
 Start:
 - `yarn install`
-- `yarn run setup` *(Note, this takes a **very** long time, likely over an hour.)*
+- `yarn run setup` *(Note, this may take a while.)*
 - open `.build/projects/vs2017/urbanspork.sln` in visual studio.
 
 # Licence:

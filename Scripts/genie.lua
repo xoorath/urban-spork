@@ -22,6 +22,8 @@ solution "urbanspork"
 
 BGFX_DIR   = path.getabsolute("./../node_modules/bgfx")
 
+LIBZMQ_DIR   = path.getabsolute("./../node_modules/libzmq")
+
 URBAN_SPORK_DIR = path.getabsolute("./..");
 BX_DIR = path.getabsolute(path.join(BGFX_DIR, "../bx"))
 BIMG_DIR = path.getabsolute(path.join(BGFX_DIR, "../bimg"))
@@ -61,7 +63,8 @@ function projectDefaults()
 		path.join(BIMG_DIR, "include"),
 		path.join(BGFX_DIR, "include"),
 		path.join(BGFX_DIR, "3rdparty"),
-		path.join(BGFX_DIR, "examples/common")
+		path.join(BGFX_DIR, "examples/common"),
+		path.join(LIBZMQ_DIR, "include")
 	}
 
 	links {
@@ -70,7 +73,8 @@ function projectDefaults()
 		"bgfx",
 		"bimg_decode",
 		"bimg",
-		"bx"
+		"bx",
+		--"libzmq"
 	}
 
 	configuration { "vs*", "x32 or x64" }
@@ -86,6 +90,26 @@ function projectDefaults()
 			"/DELAYLOAD:\"libEGL.dll\"",
 			"/DELAYLOAD:\"libGLESv2.dll\"",
 		}
+
+	-- configuration { "vs*", "x32", "Release" }
+	-- 	links {
+	-- 		path.join(LIBZMQ_DIR,"bin/Win32/Release/v140/static/libzmq")
+	-- 	 }
+	
+	-- configuration { "vs*", "x32", "Debug" }
+	-- 	links {
+	-- 		path.join(LIBZMQ_DIR,"bin/Win32/Debug/v140/static/libzmq")
+	-- 	 }
+
+	-- configuration { "vs*", "x64", "Release" }
+	-- 	links {
+	-- 		path.join(LIBZMQ_DIR,"bin/x64/Release/v140/static/libzmq")
+	-- 	 }
+	
+	-- configuration { "vs*", "x64", "Debug" }
+	-- 	links {
+	-- 		path.join(LIBZMQ_DIR,"bin/x64/Debug/v140/static/libzmq")
+	-- 	 }
 
 	configuration { "mingw*" }
 		targetextension ".exe"

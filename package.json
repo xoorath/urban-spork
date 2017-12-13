@@ -10,10 +10,13 @@
     "setup": "./Scripts/setup.bat"
   },
   "dependencies": {
-    "bgfx": "https://github.com/bkaradzic/bgfx.git#f88c44a835a753818bbd90832934df6e2654ead1",
-    "bimg": "https://github.com/bkaradzic/bimg.git#886ba55a25db213719c96116f9eabb188b946571",
+    "bgfx": "git://github.com/bkaradzic/bgfx.git#f88c44a835a753818bbd90832934df6e2654ead1",
+    "bimg": "git://github.com/bkaradzic/bimg.git#886ba55a25db213719c96116f9eabb188b946571",
     "bindings": "^1.3.0",
-    "bx": "https://github.com/bkaradzic/bx.git#148bdc60fa25cf29ae0704caa842af4bd8a77820",
+    "bx": "git://github.com/bkaradzic/bx.git#148bdc60fa25cf29ae0704caa842af4bd8a77820",
+    "libsodium":"git://github.com/jedisct1/libsodium.git#ac8dffbecb3025a66547fbe8479deb156f2ba64b",
+    "libzmq":"git://github.com/zeromq/libzmq.git#e2dbc99c4c67e422857a23af368ab1b2a31b8e9c",
+    "czmq":"git://github.com/zeromq/czmq.git#c33db1b3ed83105faf1c2c92c63fe5c770f724ac",
     "colors": "^1.1.2",
     "decompress": "^4.2.0",
     "electron-rebuild": "^1.6.0",
