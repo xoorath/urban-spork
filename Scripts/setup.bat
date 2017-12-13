@@ -134,7 +134,6 @@ REM recognized arguments
 SET skip_decompress=FALSE
 SET skip_genie=FALSE
 SET skip_electron=FALSE
-
 SET skip_zmq=FALSE
 SET skip_libsodium=FALSE
 SET skip_libzmq=FALSE
@@ -143,18 +142,45 @@ SET skip_czmq=TRUE
 for /L %%i in (1,1,%argCount%) do (
     IF "!argVec[%%i]!"=="skip_decompress" (
         SET skip_decompress=TRUE
+    ) ELSE IF "!argVec[%%i]!"=="only_decompress" (
+        CALL :function_skipall
+        SET skip_decompres=FALSE
     ) ELSE IF "!argVec[%%i]!"=="skip_electron" (
         SET skip_electron=TRUE
+    ) ELSE IF "!argVec[%%i]!"=="only_electron" (
+        CALL :function_skipall
+        SET skip_electron=FALSE
     ) ELSE IF "!argVec[%%i]!"=="skip_zmq" (
         SET skip_zmq=TRUE
+    ) ELSE IF "!argVec[%%i]!"=="only_zmq" (
+        CALL :function_skipall
+        SET skip_zmq=FALSE
+        SET skip_libsodium=FALSE
+        SET skip_libzmq=FALSE
+        SET skip_czmq=FALSE
     ) ELSE IF "!argVec[%%i]!"=="skip_libsodium" (
         SET skip_libsodium=TRUE
+    ) ELSE IF "!argVec[%%i]!"=="only_libsodium" (
+        CALL :function_skipall
+        SET skip_zmq=FALSE
+        SET skip_libsodium=FALSE
     ) ELSE IF "!argVec[%%i]!"=="skip_libzmq" (
         SET skip_libzmq=TRUE
+    ) ELSE IF "!argVec[%%i]!"=="only_libzmq" (
+        CALL :function_skipall
+        SET skip_zmq=FALSE
+        SET skip_libzmq=FALSE
     ) ELSE IF "!argVec[%%i]!"=="skip_czmq" (
         SET skip_czmq=TRUE
+    ) ELSE IF "!argVec[%%i]!"=="only_czmq" (
+        CALL :function_skipall
+        SET skip_zmq=FALSE
+        SET skip_czmq=FALSE
     ) ELSE IF "!argVec[%%i]!"=="skip_genie" (
         SET skip_genie=TRUE
+    ) ELSE IF "!argVec[%%i]!"=="only_genie" (
+        CALL :function_skipall
+        SET skip_genie=FALSE
     ) ELSE (
         CALL :function_print_info_red "!argVec[%%i]! argument not recognized"
     )
@@ -169,6 +195,7 @@ IF %skip_decompress%==TRUE (
 
     REM CALL :function_print_info_blue "running decompression"
     REM CALL :function_print_tip "add 'skip_decompress' to the command line to skip"
+    REM CALL :function_print_tip "add 'only_decompress' to the command line to skip all others"
 
     REM node ./Source/JS/decompress.js ./third_party/something/something.zip ./third_party/something/something
     REM node ./Source/JS/decompress.js ./third_party/other/other.tar.bz2 ./third_party/other/other
@@ -188,6 +215,7 @@ IF %skip_electron%==TRUE (
     SETLOCAL
     CALL :function_print_info_blue "running electron native plugin compilation"
     CALL :function_print_tip "add 'skip_electron' to the command line to skip"
+    CALL :function_print_tip "add 'only_electron' to the command line to skip others"
 
     :: a workaround for electron-rebuild, see: https://github.com/electron/electron-rebuild/issues/215
     ECHO {} > ./node_modules/bgfx/package.json
@@ -224,6 +252,7 @@ IF %skip_zmq%==TRUE (
     ) ELSE (
         CALL :function_print_info_blue "running libsodium compilation"
         CALL :function_print_tip "add 'skip_zmq' or 'skip_libsodium' to the command line to skip"
+        CALL :function_print_tip "add 'only_zmq' or 'only_libsodium' to the command line to skip others"
         CD %LIBSODIUM_BUILD_ROOT%
         CALL buildbase.bat ..\vs2015\libsodium.sln 14
         ECHO buildbase.bat exited with code %ERRORLEVEL%
@@ -240,6 +269,7 @@ IF %skip_zmq%==TRUE (
     ) ELSE (
         CALL :function_print_info_blue "running libzmq compilation"
         CALL :function_print_tip "add 'skip_zmq' or 'skip_libzmq' to the command line to skip"
+        CALL :function_print_tip "add 'only_zmq' or 'only_libzmq' to the command line to skip others"
         CD %LIBZMQ_BUILD_ROOT%
         CALL buildbase.bat ..\vs2015\libzmq.sln 14
         ECHO buildbase.bat exited with code %ERRORLEVEL%
@@ -256,6 +286,7 @@ IF %skip_zmq%==TRUE (
     ) ELSE (
         CALL :function_print_info_blue "czmq configuration"
         CALL :function_print_tip "add 'skip_zmq' or 'skip_czmq' to the command line to skip"
+        CALL :function_print_tip "add 'only_zmq' or 'only_czmq' to the command line to skip others"
         CD %CZMQ_BUILD_ROOT%
         CALL .\configure.bat
         CD vs2015
@@ -280,6 +311,7 @@ IF %skip_genie%==TRUE (
     SETLOCAL
     CALL :function_print_info_blue "running GENie project generation (urban spork)"
     CALL :function_print_tip "add 'skip_genie' to the command line to skip"
+    CALL :function_print_tip "add 'only_genie' to the command line to skip others"
 
     "./node_modules/bx/tools/bin/windows/genie.exe" vs2017
 
@@ -292,6 +324,7 @@ IF %skip_genie%==TRUE (
 
     CALL :function_print_info_blue "running GENie project generation (bgfx)"
     CALL :function_print_tip "add 'skip_genie' to the command line to skip"
+    CALL :function_print_tip "add 'only_genie' to the command line to skip others"
 
     CD node_modules/bgfx/
     "../bx/tools/bin/windows/genie.exe" --with-examples vs2017
@@ -376,6 +409,16 @@ EXIT /B 0
 SETLOCAL
 ECHO [41m[37m^|============================================================================[0m[0m
 ENDLOCAL
+EXIT /B 0
+
+:function_skipall
+SET skip_decompress=TRUE
+SET skip_genie=TRUE
+SET skip_electron=TRUE
+SET skip_zmq=TRUE
+SET skip_libsodium=TRUE
+SET skip_libzmq=TRUE
+SET skip_czmq=TRUE
 EXIT /B 0
 
 REM :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: Cleanup
