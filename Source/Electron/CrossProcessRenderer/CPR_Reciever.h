@@ -19,20 +19,20 @@ typedef std::function<void(T_ImageData)> T_ImageDataHandler;
  * We don't yet handle having multiple editor processes, currently the behaviour of 
  * running multiple editors is undefined.
  */
-namespace CPR_Reciever 
+namespace CPR_Reciever
 {
-    ////////////////////////////////////////////////////////////////////////
-    // Initialization and lifetime events
-    ////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+// Initialization and lifetime events
+////////////////////////////////////////////////////////////////////////
 
-    // Let any listening game processes know that we're ready to recieve a stream of image data.
-    void AnnounceEditorReady();
+// Let any listening game processes know that we're ready to recieve a stream of image data.
+void AnnounceEditorReady();
 
-    // Subscribe to the OnImageRecieved event for ready to use image data.
-    // note: only one subscriber is supported.
-    void Subscribe_OnImageRecieved(T_ImageDataHandler);
+// Subscribe to the OnImageRecieved event for ready to use image data.
+// note: only one subscriber is supported.
+void Subscribe_OnImageRecieved(T_ImageDataHandler);
 
-    ////////////////////////////////////////////////////////////////////////
-    // Runtime API for communications with game proc.
-    ////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+// Runtime API for communications with game proc.
+////////////////////////////////////////////////////////////////////////
 }
