@@ -1,5 +1,7 @@
 # urban-spork
 
+Urban spork is an in-progress game engine.
+
 Requires:
 - [node.js](https://nodejs.org/en/) 
 - [yarn](https://yarnpkg.com/en/docs/getting-started)
