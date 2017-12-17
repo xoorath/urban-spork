@@ -120,6 +120,37 @@ IF NOT EXIST %CZMQ_BUILD_ROOT% (
     CALL :function_print_info_blue "czmq build root found"
 )
 
+SET WINDOWS_FIND=C:\Windows\System32\find.exe
+IF NOT EXIST %WINDOWS_FIND% (
+    REM other terminals such as cmder will use the unix find command by default.
+    REM because of this we expect to find find.exe at a specific path.
+    REM hopefully that works in most cases, or is obvious why it failed.
+    CALL :function_print_info_red "Error: cannot find %WINDOWS_FIND%"
+)
+
+REM :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: Check for automation in .git
+SETLOCAL
+
+SET git_relative_ongitpull=../Scripts/onGitPull.bat
+SET git_postMergeHook=.git/hooks/post-merge
+
+IF NOT EXIST %git_postMergeHook% (
+    CALL :function_print_info_red "Error: cannot find %git_postMergeHook%"
+    CALL :function_print_info_red "Are you running from a valid repo? the .git folder should be available."
+    GOTO:label_exit_error
+)
+
+%WINDOWS_FIND% /c "%git_relative_ongitpull%" "%git_postMergeHook%"
+
+IF NOT %ERRORLEVEL%==0 (
+    CALL :function_prompt_githooks
+) ELSE (
+    CALL :function_print_info_green "found postMergeHook"
+)
+
+
+ENDLOCAL
+
 REM :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: Package arguments into checkable flags
 
 SETLOCAL enabledelayedexpansion
@@ -420,6 +451,56 @@ SET skip_libsodium=TRUE
 SET skip_libzmq=TRUE
 SET skip_czmq=TRUE
 EXIT /B 0
+
+:function_prompt_githooks_yes
+SETLOCAL
+CALL:function_print_info_blue "adding git hooks"
+ECHO  
+ECHO %git_relative_ongitpull% >> %git_postMergeHook%
+ENDLOCAL
+EXIT /B 0
+
+:function_prompt_githooks_never
+SETLOCAL
+CALL:function_print_info_blue "adding git hooks"
+ECHO  
+ECHO # %git_relative_ongitpull% >> %git_postMergeHook%
+ENDLOCAL
+EXIT /B 0
+
+:function_prompt_githooks_ask
+SETLOCAL
+SET /p "git_response=yes/no/never (yes): "
+
+IF "%git_response%"=="yes" (
+    CALL :function_prompt_githooks_yes
+) ELSE IF "%git_response%"=="" (
+    CALL :function_prompt_githooks_yes
+) ELSE IF "%git_response%"=="no" (
+    CALL :function_print_info_blue "no selected"
+) ELSE IF "%git_response%"=="never" (
+    CALL :function_print_info_blue "never selected"
+    CALL :function_prompt_githooks_never
+) ELSE (
+    SET git_response=
+    CALL :function_prompt_githooks_ask
+)
+ENDLOCAL
+EXIT /B 0
+
+:function_prompt_githooks
+SETLOCAL
+CALL :function_print_info_red "action needed, see below:"
+ECHO It's reccomended that we automatically add a script that runs whenever you
+ECHO pull in git. this script was not not found in file:
+ECHO    %git_postMergeHook%
+ECHO
+ECHO Would you like to add this script to the git hook, so it's automatically run?
+
+CALL :function_prompt_githooks_ask
+ENDLOCAL
+EXIT /B 0
+
 
 REM :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: Cleanup
 
