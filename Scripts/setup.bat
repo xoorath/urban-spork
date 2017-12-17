@@ -131,7 +131,7 @@ IF NOT EXIST %WINDOWS_FIND% (
 REM :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: Check for automation in .git
 SETLOCAL
 
-SET git_relative_ongitpull=../Scripts/onGitPull.bat
+SET git_relative_ongitpull=Scripts/onGitPull.bat
 SET git_postMergeHook=.git/hooks/post-merge
 
 IF NOT EXIST %git_postMergeHook% (
