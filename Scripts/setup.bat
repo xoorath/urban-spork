@@ -455,16 +455,14 @@ EXIT /B 0
 :function_prompt_githooks_yes
 SETLOCAL
 CALL:function_print_info_blue "adding git hooks"
-ECHO  
-ECHO %git_relative_ongitpull% >> %git_postMergeHook%
+ECHO & ECHO.%git_relative_ongitpull% >> %git_postMergeHook%
 ENDLOCAL
 EXIT /B 0
 
 :function_prompt_githooks_never
 SETLOCAL
 CALL:function_print_info_blue "adding git hooks"
-ECHO  
-ECHO # %git_relative_ongitpull% >> %git_postMergeHook%
+ECHO & ECHO. # %git_relative_ongitpull% >> %git_postMergeHook%
 ENDLOCAL
 EXIT /B 0
 
