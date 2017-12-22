@@ -9,6 +9,7 @@
 #include <string>
 #include <array>
 
+#include "zmq.h"
 
 namespace
 {
@@ -55,6 +56,8 @@ public:
 
         imguiCreate();
         
+        void* libzmqContext = zmq_ctx_new();
+        zmq_ctx_destroy(libzmqContext);
 
     }
 

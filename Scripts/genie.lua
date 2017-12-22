@@ -20,9 +20,9 @@ solution "urbanspork"
 	language "C++"
 	startproject "Engine"
 
-BGFX_DIR   = path.getabsolute("./../node_modules/bgfx")
+BGFX_DIR = path.getabsolute("./../node_modules/bgfx")
 
-LIBZMQ_DIR   = path.getabsolute("./../node_modules/libzmq")
+LIBZMQ_DIR = path.getabsolute("./../node_modules/libzmq")
 
 URBAN_SPORK_DIR = path.getabsolute("./..");
 BX_DIR = path.getabsolute(path.join(BGFX_DIR, "../bx"))
@@ -73,9 +73,36 @@ function projectDefaults()
 		"bgfx",
 		"bimg_decode",
 		"bimg",
-		"bx",
-		--"libzmq"
+		"bx"
 	}
+
+	configuration { "x32",  "Debug" }
+		LIBZMQ_DLL_DIR = path.join(LIBZMQ_DIR, "bin/Win32/Debug/v140/dynamic")
+		links { LIBZMQ_DLL_DIR .."\\libzmq" }
+		postbuildcommands {
+			"xcopy /y ..\\..\\..\\node_modules\\libzmq\\bin\\Win32\\Debug\\v140\\dynamic\\libzmq.dll $(outdir)"
+		}
+
+	configuration { "x32", "Release" }
+		LIBZMQ_DLL_DIR = path.join(LIBZMQ_DIR, "bin/Win32/Release/v140/dynamic")
+		links { LIBZMQ_DLL_DIR .."\\libzmq" }
+		postbuildcommands {
+			"xcopy /y ..\\..\\..\\node_modules\\libzmq\\bin\\Win32\\Release\\v140\\dynamic\\libzmq.dll $(outdir)"
+		}
+	
+	configuration { "x64", "Debug" }
+		LIBZMQ_DLL_DIR = path.join(LIBZMQ_DIR, "bin/x64/Debug/v140/dynamic")
+		links { LIBZMQ_DLL_DIR .."\\libzmq" }
+		postbuildcommands {
+			"xcopy /y ..\\..\\..\\node_modules\\libzmq\\bin\\x64\\Debug\\v140\\dynamic\\libzmq.dll $(outdir)"
+		}
+		
+	configuration { "x64", "Release" }
+		LIBZMQ_DLL_DIR = path.join(LIBZMQ_DIR, "bin/x64/Release/v140/dynamic")
+		links { LIBZMQ_DLL_DIR .."\\libzmq" }
+		postbuildcommands {
+			"xcopy /y ..\\..\\..\\node_modules\\libzmq\\bin\\x64\\Release\\v140\\dynamic\\libzmq.dll $(outdir)"
+		}
 
 	configuration { "vs*", "x32 or x64" }
 		linkoptions {
@@ -90,26 +117,6 @@ function projectDefaults()
 			"/DELAYLOAD:\"libEGL.dll\"",
 			"/DELAYLOAD:\"libGLESv2.dll\"",
 		}
-
-	-- configuration { "vs*", "x32", "Release" }
-	-- 	links {
-	-- 		path.join(LIBZMQ_DIR,"bin/Win32/Release/v140/static/libzmq")
-	-- 	 }
-	
-	-- configuration { "vs*", "x32", "Debug" }
-	-- 	links {
-	-- 		path.join(LIBZMQ_DIR,"bin/Win32/Debug/v140/static/libzmq")
-	-- 	 }
-
-	-- configuration { "vs*", "x64", "Release" }
-	-- 	links {
-	-- 		path.join(LIBZMQ_DIR,"bin/x64/Release/v140/static/libzmq")
-	-- 	 }
-	
-	-- configuration { "vs*", "x64", "Debug" }
-	-- 	links {
-	-- 		path.join(LIBZMQ_DIR,"bin/x64/Debug/v140/static/libzmq")
-	-- 	 }
 
 	configuration { "mingw*" }
 		targetextension ".exe"
@@ -315,12 +322,16 @@ dofile(path.join(BIMG_DIR, "scripts/bimg_decode.lua"))
 
 dofile(path.join(BIMG_DIR, "scripts/bimg_encode.lua"))
 
+ZMQ_PROJECTS = {'inproc_lat', 'inproc_thr', 'libzmq', 'local_lat', 'remote_lat', 'remote_thr'}
+for _, zmqproj in ipairs(ZMQ_PROJECTS) do
+	importvsproject(path.join(LIBZMQ_DIR, "builds/msvc/vs2017/" .. zmqproj .. "/" .. zmqproj .. ".vcxproj"))
+end
 
 
-group "examples"
+group "applications"
 dofile(path.join(BGFX_DIR, "scripts/example-common.lua"))
 
-group "examples"
+group "applications"
 applicationProject("Engine")
 
 group "tools"
@@ -329,5 +340,4 @@ dofile(path.join(BGFX_DIR, "scripts/texturec.lua"))
 dofile(path.join(BGFX_DIR, "scripts/texturev.lua"))
 dofile(path.join(BGFX_DIR, "scripts/geometryc.lua"))
 
-
-group "electron"
+importvsproject(path.join(URBAN_SPORK_DIR, "build/CrossProcessRenderer.vcxproj"))
