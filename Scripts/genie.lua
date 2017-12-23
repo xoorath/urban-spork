@@ -322,9 +322,10 @@ dofile(path.join(BIMG_DIR, "scripts/bimg_decode.lua"))
 
 dofile(path.join(BIMG_DIR, "scripts/bimg_encode.lua"))
 
+group "libs/zmq"
 ZMQ_PROJECTS = {'inproc_lat', 'inproc_thr', 'libzmq', 'local_lat', 'remote_lat', 'remote_thr'}
 for _, zmqproj in ipairs(ZMQ_PROJECTS) do
-	importvsproject(path.join(LIBZMQ_DIR, "builds/msvc/vs2017/" .. zmqproj .. "/" .. zmqproj .. ".vcxproj"))
+	importvsproject(path.join(LIBZMQ_DIR, "builds/msvc/vs2015/" .. zmqproj .. "/" .. zmqproj .. ".vcxproj"))
 end
 
 
@@ -337,7 +338,9 @@ applicationProject("Engine")
 group "tools"
 dofile(path.join(BGFX_DIR, "scripts/shaderc.lua"))
 dofile(path.join(BGFX_DIR, "scripts/texturec.lua"))
-dofile(path.join(BGFX_DIR, "scripts/texturev.lua"))
+--dofile(path.join(BGFX_DIR, "scripts/texturev.lua"))
 dofile(path.join(BGFX_DIR, "scripts/geometryc.lua"))
+
+group "tools/electron"
 
 importvsproject(path.join(URBAN_SPORK_DIR, "build/CrossProcessRenderer.vcxproj"))

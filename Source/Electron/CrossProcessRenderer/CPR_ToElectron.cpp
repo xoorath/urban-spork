@@ -21,6 +21,11 @@ static class CPR_ToElectronInternal : public Nan::ObjectWrap
         m_ImageDataCallback.Reset(imageDataCallback);
     }
 
+    void Register_OnRecieveLog(v8::Local<v8::Function> logCallback)
+    {
+        m_LogCallback.Reset(logCallback);
+    }
+
     void Announce_EditorReady()
     {
         CPR_Reciever::Subscribe_OnImageRecieved(CPR_ToElectronInternal::OnImageRecieved);
@@ -32,6 +37,22 @@ static class CPR_ToElectronInternal : public Nan::ObjectWrap
         v8::Isolate *isolate = v8::Isolate::GetCurrent();
         v8::Local<v8::Value> dataVal = Nan::New(text).ToLocalChecked();
         v8::Local<v8::Function>::New(isolate, m_ImageDataCallback)->Call(isolate->GetCurrentContext()->Global(), 1, &dataVal);
+    }
+
+    void CallLog(std::string msg)
+    {
+        m_LogMessages.push_back(msg);
+        if (m_LogCallback.IsEmpty() == false)
+        {
+            for (size_t i = 0; i < m_LogMessages.size(); ++i)
+            {
+                
+                v8::Isolate *isolate = v8::Isolate::GetCurrent();
+                v8::Local<v8::Value> dataVal = Nan::New(m_LogMessages[i]).ToLocalChecked();
+                v8::Local<v8::Function>::New(isolate, m_LogCallback)->Call(isolate->GetCurrentContext()->Global(), 1, &dataVal);
+            }
+            m_LogMessages.clear();
+        }
     }
 
     static void New(const Nan::FunctionCallbackInfo<v8::Value> &info)
@@ -72,12 +93,15 @@ static class CPR_ToElectronInternal : public Nan::ObjectWrap
     {
         constructor.Reset();
         m_ImageDataCallback.Reset();
+        m_LogCallback.Reset();
     }
 
   private:
     static Nan::Persistent<v8::Function> constructor;
 
     Nan::Persistent<v8::Function> m_ImageDataCallback;
+    Nan::Persistent<v8::Function> m_LogCallback;
+    std::vector<std::string> m_LogMessages;
 } s_CPR_ToElectron;
 
 /* static */ Nan::Persistent<v8::Function> CPR_ToElectronInternal::constructor;
@@ -91,6 +115,11 @@ static class CPR_ToElectronInternal : public Nan::ObjectWrap
     {
         v8::Isolate *isolate = v8::Isolate::GetCurrent();
         s_CPR_ToElectron.Register_OnRecieveImage(v8::Local<v8::Function>::New(isolate, info[1].As<v8::Function>()));
+    }
+    else if (textRegistration == "log")
+    {
+        v8::Isolate *isolate = v8::Isolate::GetCurrent();
+        s_CPR_ToElectron.Register_OnRecieveLog(v8::Local<v8::Function>::New(isolate, info[1].As<v8::Function>()));
     }
 
     info.GetReturnValue().SetUndefined();
@@ -119,6 +148,11 @@ namespace CPR_ToElectron
 void SetupElectronBindings(v8::Local<v8::Object> exports)
 {
     s_CPR_ToElectron.SetupElectronBindings(exports);
+}
+
+void Log(std::string message)
+{
+    s_CPR_ToElectron.CallLog(message);
 }
 
 } // CPR_ToElectron

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <nan.h>
+#include <string.h>
 
 /**
  * CPR_ToElectron Handles piping data from the CPR_Reciever to the client 
@@ -29,4 +30,5 @@ namespace CPR_ToElectron
 ////////////////////////////////////////////////////////////////////////
 // Runtime API for communications with game proc.
 ////////////////////////////////////////////////////////////////////////
+void Log(std::string message);
 }

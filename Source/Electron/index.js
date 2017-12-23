@@ -16,6 +16,10 @@ CPR.on('image', function(imageData) {
   console.log('\timageData: ' + JSON.stringify(imageData, null, 2));
 });
 
+CPR.on('log', function(msg) {
+  console.log(msg);
+});
+
 CPR.announce('ready');
 
 // Keep a global reference of the window object, if you don't, the window will

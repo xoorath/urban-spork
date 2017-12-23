@@ -9,7 +9,8 @@
 #include <string>
 #include <array>
 
-#include "zmq.h"
+#include "CPR_Host.h"
+
 
 namespace
 {
@@ -55,9 +56,8 @@ public:
         m_timeOffset = bx::getHPCounter();
 
         imguiCreate();
-        
-        void* libzmqContext = zmq_ctx_new();
-        zmq_ctx_destroy(libzmqContext);
+
+        CPR_Host::AnnounceHostReady();
 
     }
 
