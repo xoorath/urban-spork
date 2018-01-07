@@ -238,37 +238,6 @@ IF %skip_decompress%==TRUE (
     ENDLOCAL
 )
 
-REM :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: Build CrossProcessRenderer for nodejs
-
-IF %skip_electron%==TRUE (
-    CALL :function_print_info_blue "skipping electron (skip_electron used)"
-) ELSE (
-    SETLOCAL
-    CALL :function_print_info_blue "running electron native plugin compilation"
-    CALL :function_print_tip "add 'skip_electron' to the command line to skip"
-    CALL :function_print_tip "add 'only_electron' to the command line to skip others"
-
-    :: a workaround for electron-rebuild, see: https://github.com/electron/electron-rebuild/issues/215
-    ECHO {} > ./node_modules/bgfx/package.json
-    ECHO {} > ./node_modules/bx/package.json
-    ECHO {} > ./node_modules/bimg/package.json
-    ECHO {} > ./node_modules/libsodium/package.json
-    ECHO {} > ./node_modules/libzmq/package.json
-    ECHO {} > ./node_modules/czmq/package.json
-
-    CALL %ELECTRON_REBUILD% -f -w CrossProcessRenderer --debug
-
-    IF NOT %ERRORLEVEL%==0 (
-        ECHO %ELECTRON_REBUILD% returned %ERRORLEVEL%
-        CALL :function_print_info_red "electron compilation failed"
-        ENDLOCAL
-        GOTO:label_exit_error
-    )
-    CD %PROJECT_ROOT%
-
-    ENDLOCAL
-)
-
 REM :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: Build 0MQ and its dependancies
 REM basic instructions from https://github.com/zeromq/czmq, 
 REM except we're using yarn (see: package.json) to get dependancies from git.
@@ -331,6 +300,38 @@ IF %skip_zmq%==TRUE (
         )
         CD %PROJECT_ROOT%
     )
+    ENDLOCAL
+)
+
+REM :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: Build CrossProcessRenderer for nodejs
+
+IF %skip_electron%==TRUE (
+    CALL :function_print_info_blue "skipping electron (skip_electron used)"
+) ELSE (
+    SETLOCAL
+    CALL :function_print_info_blue "running electron native plugin compilation"
+    CALL :function_print_tip "add 'skip_electron' to the command line to skip"
+    CALL :function_print_tip "add 'only_electron' to the command line to skip others"
+
+    :: a workaround for electron-rebuild, see: https://github.com/electron/electron-rebuild/issues/215
+    ECHO {} > ./node_modules/bgfx/package.json
+    ECHO {} > ./node_modules/bimg/package.json
+    ECHO {} > ./node_modules/bx/package.json
+    ECHO {} > ./node_modules/czmq/package.json
+    ECHO {} > ./node_modules/libsodium/package.json
+    ECHO {} > ./node_modules/libzmq/package.json
+    ECHO {} > ./node_modules/process.h/package.json
+
+    CALL %ELECTRON_REBUILD% -f -w CrossProcessRenderer --debug
+
+    IF NOT %ERRORLEVEL%==0 (
+        ECHO %ELECTRON_REBUILD% returned %ERRORLEVEL%
+        CALL :function_print_info_red "electron compilation failed"
+        ENDLOCAL
+        GOTO:label_exit_error
+    )
+    CD %PROJECT_ROOT%
+
     ENDLOCAL
 )
 
